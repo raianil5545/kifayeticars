@@ -13,7 +13,7 @@ class TestBase(TestCase):
     def setUp(self):
         self.location = Location.objects.create(location="kathmandu", slug="kathmandu")
         self.make = Make.objects.create(brand="Honda", slug="honda")
-        self.model = Model.objects.create(model="civic", slug="civic")
+        self.model = Model.objects.create(model="civic", slug="civic", make=self.make)
         self.user = AppUser(
             first_name="test",
             last_name="rest",
@@ -60,7 +60,7 @@ class TestLocationModel(TestCase):
     
     def test_location_reverse_url(self):
         data = self.location1
-        self.assertEqual(data.get_absolute_url(), "/cars/location/kathmandu/")
+        self.assertEqual(data.get_absolute_url(), "/cars/location/kathmandu")
 
 
 
@@ -83,11 +83,13 @@ class TestMakeModel(TestCase):
 
 class TestModelModel(TestCase):
     def setUp(self) -> None:
-        self.model = Model.objects.create(model="civic", slug="civic")
+        self.make = Make.objects.create(brand="Honda", slug="honda")
+        self.model = Model.objects.create(model="civic", slug="civic", make=self.make)
         return super().setUp()
     
     def tearDown(self) -> None:
         self.model.delete()
+        self.make.delete()
         return super().tearDown()
 
     def test_model_entry(self):
@@ -114,7 +116,7 @@ class TestcarModel(TestBase):
         
         
     def test_car_model_get_absolute_url(self):
-        self.assertEqual(self.car.get_absolute_url(), f"/car/{self.car.slug}/")
+        self.assertEqual(self.car.get_absolute_url(), f"/car/{self.car.slug}")
         
     
 class TestFeedBackModel(TestBase):  

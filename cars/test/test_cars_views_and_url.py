@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from account.models import AppUser
 from cars.models import Car, CarImage, Feedback, Location, Make, Model, Rating
-from cars.views import all_cars
+from cars.views import cars_all
 
 User = settings.AUTH_USER_MODEL
 
@@ -19,7 +19,7 @@ class TestCarsViews(TestCase):
         self.factory = RequestFactory()
         self.location = Location.objects.create(location="kathmandu", slug="kathmandu")
         self.make = Make.objects.create(brand="Honda", slug="honda")
-        self.model = Model.objects.create(model="civic", slug="civic")
+        self.model = Model.objects.create(model="civic", slug="civic", make=self.make)
         self.user = AppUser(
             first_name="test",
             last_name="rest",
@@ -54,8 +54,8 @@ class TestCarsViews(TestCase):
     
     def test_home_page_html(self):
         request = HttpRequest()
-        resposne = all_cars(request)
-        html = resposne.content.decode("utf-8")
+        response = cars_all(request)
+        html = response.content.decode("utf-8")
         self.assertTrue(html.startswith('<!DOCTYPE html>'))
         self.assertIn("Home", html)
     
@@ -82,7 +82,7 @@ class TestCarsViews(TestCase):
     
     def test_view_function(self):
         request = self.factory.get("cars/1/")
-        response = all_cars(request)
+        response = cars_all(request)
         html = response.content.decode("utf-8")
         self.assertIn("Honda civic", html)
         self.assertTrue(html.startswith('<!DOCTYPE html>'))
