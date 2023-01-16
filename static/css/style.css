@@ -1,0 +1,71 @@
+.navbar-spec {
+    width: 100%;
+    height: 3rem;
+    background-color: aliceblue;
+}
+.navblock1 {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.navblock1 > div {
+    padding: 10px;
+}
+
+.navblock2 {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: end;
+    padding: 20px;
+}
+
+.navblock2 > div {
+    padding: 10px;
+}
+
+.navbar-achor {
+    color: #337ab7;
+    text-decoration: none;
+    font-size: 20px;
+    font-family: 'Times New Roman', Times, serif;
+    padding: 5px;
+}
+
+.navbar-achor:hover a{
+    font-size: 30px;
+}
+
+.logo-img {
+    height: 3rem;
+    width: 5rem;
+}
+
+select.home-search {
+    width: 20%;
+    margin: 5px;
+    font-size: 20px;
+    font-family: 'Times New Roman', Times, serif;
+    color: darkcyan;
+    padding: 10px;
+}
+
+form.home-search {
+    margin: 20px;
+    padding: 10px;
+    display: flexbox;
+    align-items: flex-end;
+}
+
+button.home-search {
+    width: 20%;
+    margin: 5px;
+    font-size: 25px;
+    font-family: 'Times New Roman', Times, serif;
+    color: whitesmoke;
+    padding:  5px;
+    background-color: orangered;
+}
+
+#img-size {
+    height: 50vh !important;
+}
