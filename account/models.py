@@ -25,9 +25,8 @@ class UserManager(BaseUserManager):
         user.save()
         return user
 
-
-    def create_superuser(self, email:str, first_name:str, 
-                         last_name:str, password:str) -> "AppUser":
+    def create_superuser(self, email: str, first_name: str,
+                         last_name: str, password: str) -> "AppUser":
         user = self.create_user(
             first_name=first_name,
             last_name=last_name,
@@ -36,11 +35,11 @@ class UserManager(BaseUserManager):
             is_staff=True,
             is_superuser=True
         )
-        return user        
+        return user
 
 
 class AppUser(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(_("email address"), 
+    email = models.EmailField(_("email address"),
                               unique=True)
     first_name = models.CharField(max_length=150,
                                   verbose_name="first name")
@@ -53,14 +52,9 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=datetime.now())
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    
     object = UserManager()
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["first_name","last_name",]
-    
-    
+    REQUIRED_FIELDS = ["first_name", "last_name", ]
+
     def __str__(self):
         return self.email
-    
-
-    

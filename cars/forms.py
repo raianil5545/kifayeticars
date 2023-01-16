@@ -1,11 +1,11 @@
 from django import forms
 
-
 from .models import Car, CarImage
+
 
 class CarForm(forms.ModelForm):
     class Meta:
-        fields = ("price", "year_of_manufacture", 
+        fields = ("price", "year_of_manufacture",
                   "max_customization_price", "description",
                   "make", "model",
                   "location")
@@ -20,6 +20,7 @@ class CarForm(forms.ModelForm):
         }
 
         model = Car
+
 
 class AddCarImageForm(forms.ModelForm):
     class Meta:

@@ -13,13 +13,3 @@ class RegisterForm(forms.ModelForm):
             'email': forms.TextInput(attrs={'class': 'form-control'}),
             'password': forms.PasswordInput(attrs={'class': 'form-control'}),
         }
-
-
-class LogInForm(forms.ModelForm):
-    class Meta:
-        model = AppUser
-        fields = ("email", "password")
-        widgets = {
-                'email': forms.TextInput(attrs={'class': 'form-control'}),
-                'password': forms.PasswordInput(attrs={'class': 'form-control'}),
-        }

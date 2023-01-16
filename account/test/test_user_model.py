@@ -7,11 +7,11 @@ class TestUserAccount(TestCase):
     def setUp(self) -> None:
         self.db = get_user_model()
         return super().setUp()
-    
+
     def tearDown(self) -> None:
         del self.db
         return super().tearDown()
-    
+
     @pytest.mark.django_db
     def test_new_super_user(self):
         super_user = self.db.object.create_superuser(
@@ -24,15 +24,14 @@ class TestUserAccount(TestCase):
         self.assertTrue(super_user.is_staff)
         self.assertTrue(super_user.is_active)
         self.assertEqual(str(super_user), "test_super@gmail.com")
-    
-    
-    @pytest.mark.django_db  
+
+    @pytest.mark.django_db
     def test_new_user(self):
         user = self.db.object.create_user(
-            first_name = "first name",
-            last_name = "last name",
-            email = "some@gmail.com",
-            password = "PWD123453"
+                                         first_name="first name",
+                                         last_name="last name",
+                                         email="some@gmail.com",
+                                         password="PWD123453"
         )
         self.assertEqual(user.email,  "some@gmail.com")
         self.assertEqual(user.first_name, "first name")
@@ -41,15 +40,14 @@ class TestUserAccount(TestCase):
         self.assertFalse(user.is_superuser)
         with self.assertRaises(ValueError):
             self.db.object.create_user(
-            first_name = "first name",
-            last_name = "last name",
-            email = "",
-            password = "PWD123453")
-        
+                                      first_name="first name",
+                                      last_name="last name",
+                                      email="",
+                                      password="PWD123453")
+
         with self.assertRaises(ValueError):
             self.db.object.create_user(
-            first_name = "",
-            last_name = "last name",
-            email = "some@gmail.com",
-            password = "PWD123453")
-        
+                                       first_name="",
+                                       last_name="last name",
+                                       email="some@gmail.com",
+                                       password="PWD123453")

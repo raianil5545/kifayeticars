@@ -1,11 +1,8 @@
-from django.contrib import messages
-from django.contrib.auth import login as auth_login
 from django.contrib.auth import views as auth_views
-from django.views.generic.edit import FormView
 from django.contrib.auth.models import Group
+from django.views.generic.edit import FormView
 
-
-from account.forms import LogInForm, RegisterForm
+from account.forms import RegisterForm
 
 from .models import AppUser
 
@@ -14,6 +11,7 @@ class RegisterUserView(FormView):
     template_name = 'users/register.html'
     form_class = RegisterForm
     success_url = '/user/login/'
+
     def form_valid(self, form):
         user_data = form.cleaned_data
         if user_data["email"].split("@")[1] == "kifayeticar.com":
@@ -26,7 +24,7 @@ class RegisterUserView(FormView):
             email=user_data["email"],
             is_staff=user_data["is_staff"]
         )
-        if user_data["password"] is not None:  
+        if user_data["password"] is not None:
             user.set_password(user_data["password"])
             user.save()
         new_user = AppUser.object.get(email=user_data["email"])
@@ -36,13 +34,12 @@ class RegisterUserView(FormView):
         staff_group = Group.objects.filter(name="Staff")
         new_user.groups.add(staff_group.values()[0]["id"])
         new_user.save()
-        return super().form_valid(form) 
+        return super().form_valid(form)
 
 
 class LogInUserView(auth_views.LoginView):
     template_name = "users/login.html"
-    
-    
+
     def get_success_url(self):
         return "/"
 
@@ -60,11 +57,9 @@ class LogInUserView(auth_views.LoginView):
 class LogOutUserView(auth_views.LogoutView):
     def get_success_url(self):
         return "/"
-    
-    
+
     def post(self, request, *args, **kwargs):
         del request.session.user_email
         del request.session.is_staff
         del request.session.user_id
         return super().post(request, *args, **kwargs)
-    

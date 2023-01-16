@@ -6,6 +6,7 @@ def locations(request):
         'locations': Location.objects.all()
     }
 
+
 def makes(request):
     return {
         'makes': Make.objects.all()
