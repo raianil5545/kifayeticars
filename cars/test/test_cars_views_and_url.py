@@ -1,3 +1,5 @@
+from importlib import import_module
+
 from django.conf import settings
 from django.http import HttpRequest
 from django.test import Client, RequestFactory, TestCase
@@ -51,6 +53,8 @@ class TestCarsViews(TestCase):
 
     def test_home_page_html(self):
         request = HttpRequest()
+        engine = import_module(settings.SESSION_ENGINE)
+        request.session = engine.SessionStore()
         response = cars_all(request)
         html = response.content.decode("utf-8")
         self.assertTrue(html.startswith('<!DOCTYPE html>'))
@@ -78,6 +82,8 @@ class TestCarsViews(TestCase):
 
     def test_view_function(self):
         request = self.factory.get("cars/1/")
+        engine = import_module(settings.SESSION_ENGINE)
+        request.session = engine.SessionStore()
         response = cars_all(request)
         html = response.content.decode("utf-8")
         self.assertIn("Honda civic", html)

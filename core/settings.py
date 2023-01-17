@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'account',
-    'cars'
+    'cars',
+    'mathfilters',
+    'sales_appointment',
 ]
 
 MIDDLEWARE = [
@@ -67,6 +69,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'cars.context_processor.locations',
                 'cars.context_processor.makes',
+                'sales_appointment.context_processor.appointment',
             ],
         },
     },

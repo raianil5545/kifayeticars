@@ -10,12 +10,12 @@
             <div class="col-md-5 col-lg-5 order-md-first bg-light">
                 <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
                     <div class="carousel-inner">
-                      <div class="carousel-item active">
-                        <img src="/media/{{images.0}}" class="d-block w-100" alt="...">
-                      </div>
-                      <div class="carousel-item">
-                        <img src="/media/{{images.1}}"class="d-block w-100" alt="...">
-                      </div>
+                        <div class="carousel-item active">
+                            <img src="/media/{{images.0}}" class="d-block w-100" alt="...">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="/media/{{images.1}}" class="d-block w-100" alt="...">
+                        </div>
                     </div>
                 </div>
 
@@ -35,21 +35,45 @@
                                 <p>Available at: {{car.location}}</p>
                             </div>
                             {% if not request.session.is_staff and request.session.user_email %}
-                            <div class="col-6 text-end"><button type="button" class="btn btn-secondary btn-sm">Add to
-                                basket</button></div>
+                            <div class="d-flex justify-content-around">
+                                <input class="col-6" type="date" name="appointment-date" id="appointment-date-id">
+                                <button type="button" id="add-appointment" value="{{car.id}}"
+                                    class="btn btn-primary btn-sm">Add to Appointment</button>
+                            </div>
                             {% endif %}
                         </div>
                     </div>
                 </div>
                 {% if request.session.is_staff %}
-                    <button><a href="{{ car.get_car_image_absolute_url }}">Add More Image</a></button>
+                <button><a href="{{ car.get_car_image_absolute_url }}">Add More Image</a></button>
                 {% endif %}
                 {% if request.session.is_staff %}
-                    <button><a href="{{ car.get_absolute_url_update }}">Update Car</a></button>
+                <button><a href="{{ car.get_absolute_url_update }}">Update Car</a></button>
                 {% endif %}
                 {% if request.session.is_staff %}
-                    <button><a href="{{ car.get_car_delete_absolute_url }}">Delete Car</a></button>
+                <button><a href="{{ car.get_car_delete_absolute_url }}">Delete Car</a></button>
                 {% endif %}
             </div>
         </div>
+    </main>
+</div>
+<script>
+    $(document).on('click', '#add-appointment', function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: '{% url "sales_appointment:appointment_add" %}',
+            data: {
+                carid: $('#add-appointment').val(),
+                appointment_date: $('input[name=appointment-date]').val(),
+                csrfmiddlewaretoken: "{{csrf_token}}",
+                action: 'post'
+            },
+            success: function (json) {
+                document.getElementById("appointment-numbers").innerHTML = json.appointment_number
+            },
+            error: function (xhr, errmsg, err) {}
+        });
+    });
+</script>
 {% endblock content %}

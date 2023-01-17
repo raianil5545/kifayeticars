@@ -1,19 +1,10 @@
-from django.contrib.auth.decorators import user_passes_test
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
+from auth.group_permission import group_required
+
 from .forms import AddCarImageForm, CarForm
 from .models import Car, CarImage, Location, Make, Model
-
-
-def group_required(*group_names):
-    """Requires user membership in at least one of the groups passed in."""
-    def in_groups(u):
-        if bool(u.groups.filter(name__in=group_names)):
-            return True
-        return False
-
-    return user_passes_test(in_groups, login_url='/')
 
 
 def cars_all(request):
@@ -37,7 +28,7 @@ def cars_by_location(request, location_slug):
     cars = Car.objects.filter(location=location)
     for car in cars:
         car_images_list = CarImage.objects.all().filter(car=car.id).values()
-        images = [image["car_image"] for image in car_images_list]
+        images = [(index, image["car_image"]) for index, image in enumerate(car_images_list)]
         car.images = images
     return render(request, "cars/home.html", {"cars": cars})
 
@@ -47,7 +38,7 @@ def cars_by_make(request, make_slug):
     cars = Car.objects.filter(make=make)
     for car in cars:
         car_image_list = CarImage.objects.all().filter(car=car.id).values()
-        images = [image["car_image"] for image in car_image_list]
+        images = [(index, image["car_image"]) for index, image in enumerate(car_image_list)]
         car.images = images
     return render(request, "cars/home.html", {"cars": cars})
 

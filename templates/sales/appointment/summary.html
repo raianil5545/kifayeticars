@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+Car Purchase Appointment Summary
+{% endblock title %}
+{% block content %}
+<main class="pt-5">
+    <div class="container">
+        <h1 class="h5">Appointment basket</h1>
+        {% for item in appointment %}
+        {% with car=item.car %}
+        <div data-index="{{car.id}}" class="row mb-4 border car-item">
+            <div class="row g-3">
+                <div class="col-md-5 col-lg-5 order-md-first bg-light">
+                    <div id="carouselExampleSlidesOnly" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="/media/{{car.images.0.1}}" class="d-block w-100" alt="...">
+                            </div>
+                            <div class="carousel-item">
+                                <img src="/media/{{car.images.0.1}}" class="d-block w-100" alt="...">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-md-7 col-lg-7 ps-md-3 ps-lg-5">
+                    <h1 class="mb-0 h4">{{ car.make }} {{ car.model }}</h1>
+                    <p>{{ car.description|slice:":355" }}...</p>
+                    <div class="border">
+                        <div class="col">
+                            <div class="row p-3">
+                                <div class="col-6">
+                                    <label for="appointment-date">Appointment Date</label>
+                                    <input type="date" name="appointment-date" id="appointment-date{{car.id}}" value="{{item.appointment_date}}">
+                                    <p>
+                                        Price Range: {{car.price}} to {{car.price|add:car.max_customization_price}}
+                                    </p>
+                                    <p>Year of Manufacture: {{car.year_of_manufacture}}</p>
+                                    <p>Available at: {{car.location}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% if not request.session.is_staff and request.session.user_email %}
+                    <button type="button" id="update-button" data-index="{{car.id}}"
+                        class="btn btn-outline-secondary btn-sm update-button">
+                        Update
+                    </button>
+                    <button type="button" id="delete-button" data-index="{{car.id}}"
+                        class="btn btn-outline-danger btn-sm delete-button">
+                        Delete
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+        {% endfor %}
+    </div>
+</main>
+<script>
+    //Delete Item
+    $(document).on('click', '.delete-button', function (e) {
+        e.preventDefault();
+        var prodid = $(this).data('index');
+        $.ajax({
+            type: 'POST',
+            url: '{% url "sales_appointment:appointment_delete" %}',
+            data: {
+                carid: $(this).data('index'),
+                csrfmiddlewaretoken: "{{csrf_token}}",
+                action: 'post'
+            },
+            success: function (json) {
+                console.log(prodid)
+                $('.car-item[data-index="'+ prodid +'"]').remove()
+                document.getElementById("appointment-numbers").innerHTML = json.appointment_number
+            },
+            error: function (xhr, errmsg, err) {}
+        });
+    });
+    // Update Item
+    $(document).on('click', '.update-button', function (e) {
+        e.preventDefault();
+        var prodid = $(this).data('index');
+        $.ajax({
+            type: 'POST',
+            url: '{% url "sales_appointment:appointment_update" %}',
+            data: {
+                carid: $(this).data('index'),
+                appointment_date: $('#appointment-date' + prodid).val(),
+                csrfmiddlewaretoken: "{{csrf_token}}",
+                action: 'post'
+            },
+            success: function (json) {
+                console.log(prodid)
+                document.getElementById('#appointment-date' + prodid).innerHTML = json.appointment_date
+            },
+            error: function (xhr, errmsg, err) {}
+        });
+    });
+</script>
+{% endblock content %}
