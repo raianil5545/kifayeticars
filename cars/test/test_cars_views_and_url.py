@@ -1,15 +1,25 @@
 from importlib import import_module
+from io import BytesIO
 
 from django.conf import settings
-from django.http import HttpRequest
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.http import HttpRequest, HttpResponseRedirect
 from django.test import Client, RequestFactory, TestCase
 from django.urls import reverse
+from PIL import Image
 
 from account.models import AppUser
 from cars.models import Car, Location, Make, Model
 from cars.views import cars_all
 
 User = settings.AUTH_USER_MODEL
+
+
+def temporary_image():
+    bts = BytesIO()
+    img = Image.new("RGB", (100, 100))
+    img.save(bts, 'jpeg')
+    return SimpleUploadedFile("test.jpg", bts.getvalue())
 
 
 class TestCarsViews(TestCase):
@@ -19,13 +29,18 @@ class TestCarsViews(TestCase):
         self.location = Location.objects.create(location="kathmandu", slug="kathmandu")
         self.make = Make.objects.create(brand="Honda", slug="honda")
         self.model = Model.objects.create(model="civic", slug="civic", make=self.make)
-        self.user = AppUser(
+        customer_user = dict(
             first_name="test",
             last_name="rest",
-            password="somepwd",
-            email="test_rest5545@gmail.com"
+            password="Staff1@",
+            email="staff1@kifayeticar.com"
         )
-        self.user.save()
+        credentials = {
+            'username': 'staff1@kifayeticar.com',
+            'password': 'Staff1@'}
+        self.client.post(reverse('account:register'), data=customer_user)
+        self.client.post(reverse('account:login'), data=credentials)
+        self.user = AppUser.object.get(email="staff1@kifayeticar.com")
         self.car = Car.objects.create(user=self.user,
                                       price=100000,
                                       year_of_manufacture=2018,
@@ -80,6 +95,18 @@ class TestCarsViews(TestCase):
         )
         self.assertEqual(respone.status_code, 404)
 
+    def test_car_by_nake_url_status_code_200(self):
+        respone = self.client.get(
+            reverse("cars:cars_by_make", args=["honda"])
+        )
+        self.assertEqual(respone.status_code, 200)
+
+    def test_car_by_nake_url_status_code_400(self):
+        respone = self.client.get(
+            reverse("cars:cars_by_make", args=["invalid"])
+        )
+        self.assertEqual(respone.status_code, 404)
+
     def test_view_function(self):
         request = self.factory.get("cars/1/")
         engine = import_module(settings.SESSION_ENGINE)
@@ -100,3 +127,67 @@ class TestCarsViews(TestCase):
         self.assertEqual(response.status_code, 200)
         response = self.client.get("/", HTTP_HOST="127.0.0.1")
         self.assertEqual(response.status_code, 200)
+
+    def test_add_car_with_staff_group(self):
+        location = Location.objects.create(location="pokhara", slug="pokhara")
+        make = Make.objects.create(brand="Tata", slug="tata")
+        model = Model.objects.create(model="sumo", slug="sumo", make=self.make)
+        data = dict(
+            price=5000000,
+            year_of_manufacture=2018,
+            max_customization_price=700000,
+            description="some text here",
+            make=make,
+            model=model,
+            location=location.id)
+        response = self.client.post(reverse('cars:add_car'), data=data)
+        self.assertIsInstance(response, HttpResponseRedirect)
+
+    def test_add_car_get_form_with_staff_group(self):
+        response = self.client.get(reverse('cars:add_car'))
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode("utf-8")
+        self.assertIn('Add Car', html)
+        self.assertIn("<h1>Add Cars Page</h1>", html)
+        self.assertTrue(html.startswith('<!DOCTYPE html>'))
+
+    def test_update_car_render_html_with_staff_group(self):
+        response = self.client.get(reverse('cars:update_car', args=[self.car.slug]))
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode("utf-8")
+        self.assertIn('Update Car', html)
+        self.assertTrue(html.startswith('<!DOCTYPE html>'))
+        self.assertIn("Honda", html)
+        self.assertIn("civic", html)
+        self.assertIn("2018", html)
+
+    def test_update_car_and_redirect_with_staff_group(self):
+        location = Location.objects.create(location="pokhara", slug="pokhara")
+        make = Make.objects.create(brand="Tata", slug="tata")
+        model = Model.objects.create(model="sumo", slug="sumo", make=self.make)
+        data = dict(
+            price=5000000,
+            year_of_manufacture=2018,
+            max_customization_price=700000,
+            description="some text here",
+            make=make,
+            model=model,
+            location=location.id)
+        response = self.client.post(reverse('cars:update_car', args=[self.car.slug]), data)
+        self.assertIsInstance(response, HttpResponseRedirect)
+        response = self.client.get(reverse('cars:update_car', args=[self.car.slug]))
+        html = response.content.decode("utf-8")
+        self.assertIn("Tata", html)
+        self.assertIn("sumo", html)
+        self.assertIn("2018", html)
+
+    def test_add_car_image_redirect(self):
+        response = self.client.post(reverse('cars:add_car_image', args=[self.car.slug]),
+                                    {'car_image': temporary_image()}, format="multipart")
+        self.assertIsInstance(response, HttpResponseRedirect)
+
+    def test_render_add_car_image_template(self):
+        response = self.client.get(reverse('cars:add_car_image', args=[self.car.slug]))
+        html = response.content.decode("utf-8")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Add Car Image", html)
