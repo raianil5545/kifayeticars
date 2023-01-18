@@ -191,3 +191,24 @@ class TestCarsViews(TestCase):
         html = response.content.decode("utf-8")
         self.assertEqual(response.status_code, 200)
         self.assertIn("Add Car Image", html)
+
+    def test_redirect_car_delete(self):
+        response = self.client.get(reverse('cars:delete_car', args=[self.car.slug]))
+        self.assertIsInstance(response, HttpResponseRedirect)
+
+    def test_render_403_car_delete(self):
+        customer_user = dict(
+            first_name="test",
+            last_name="rest",
+            password="Staff2@",
+            email="staff2@kifayeticar.com"
+        )
+        credentials = {
+            'username': 'staff2@kifayeticar.com',
+            'password': 'Staff2@'}
+        self.client.post(reverse('account:register'), data=customer_user)
+        self.client.post(reverse('account:login'), data=credentials)
+        response = self.client.get(reverse('cars:delete_car', args=[self.car.slug]))
+        html = response.content.decode('utf-8')
+        self.assertIn('Permission denied', html)
+        self.assertEqual(response.status_code, 200)
