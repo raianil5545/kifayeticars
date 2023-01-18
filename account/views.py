@@ -29,10 +29,11 @@ class RegisterUserView(FormView):
             user.save()
         new_user = AppUser.object.get(email=user_data["email"])
         if not new_user.is_staff:
-            customer_group = Group.objects.filter(name="Customer")
-            new_user.groups.add(customer_group.values()[0]["id"])
-        staff_group = Group.objects.filter(name="Staff")
-        new_user.groups.add(staff_group.values()[0]["id"])
+            customer_group = Group.objects.get_or_create(name="Customer")
+            new_user.groups.add(customer_group[0])
+        else:
+            staff_group = Group.objects.get_or_create(name="Staff")
+            new_user.groups.add(staff_group[0])
         new_user.save()
         return super().form_valid(form)
 
@@ -59,7 +60,7 @@ class LogOutUserView(auth_views.LogoutView):
         return "/"
 
     def post(self, request, *args, **kwargs):
-        del request.session.user_email
-        del request.session.is_staff
-        del request.session.user_id
+        del request.session["user_email"]
+        del request.session["is_staff"]
+        del request.session["user_id"]
         return super().post(request, *args, **kwargs)
