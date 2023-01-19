@@ -18,11 +18,12 @@ class Test_Account_Views_Url(TestCase):
             email="some@gmail.com",
             first_name="customer",
             last_name="one",
-            password="PWD123453"
+            password="PWD123453",
+            password2="PWD123453"
         )
         response = self.client.post(reverse('account:register'), data=user)
         self.assertIsInstance(response, HttpResponseRedirect)
-        user = AppUser.object.get(email="some@gmail.com")
+        user = AppUser.objects.get(email="some@gmail.com")
         user_customer = user.groups.filter(name='Customer').exists()
         self.assertTrue(user_customer)
         self.assertEqual(user.id, 1)
@@ -32,23 +33,25 @@ class Test_Account_Views_Url(TestCase):
             email="staff@kifayeticar.com",
             first_name="staff",
             last_name="one",
-            password="Staff123453"
+            password="Staff123453",
+            password2="Staff123453"
         )
         response = self.client.post(reverse('account:register'), data=user)
         self.assertIsInstance(response, HttpResponseRedirect)
-        user = AppUser.object.get(email="staff@kifayeticar.com")
+        user = AppUser.objects.get(email="staff@kifayeticar.com")
         staff_customer = user.groups.filter(name='Staff').exists()
         self.assertTrue(staff_customer)
         self.assertEqual(user.id, 1)
 
     def test_user_login_success_url(self):
-        user = dict(
+        user = AppUser.objects.create_user(
             email="some@gmail.com",
-            first_name="customer",
+            first_name="staff",
             last_name="one",
             password="PWD123453"
         )
-        self.client.post(reverse('account:register'), data=user)
+        user.is_active = True
+        user.save()
         credentials = {
             'username': 'some@gmail.com',
             'password': 'PWD123453'}
@@ -60,13 +63,14 @@ class Test_Account_Views_Url(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_user_logout_success_url(self):
-        user = dict(
+        user = AppUser.objects.create_user(
             email="some@gmail.com",
-            first_name="customer",
+            first_name="staff",
             last_name="one",
             password="PWD123453"
         )
-        self.client.post(reverse('account:register'), data=user)
+        user.is_active = True
+        user.save()
         credentials = {
             'username': 'some@gmail.com',
             'password': 'PWD123453'}

@@ -151,3 +151,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+
+# Redirect url on auth
+LOGIN_REDIRECT_URL = "/"
+LOGIN_URL = "/account/login/"
+LOGOUT_REDIRECT_URL = "/"
+
+# Emal setting
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

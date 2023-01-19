@@ -22,8 +22,9 @@ class TestAppointmentView(TestCase):
         )
         self.user.set_password("somepwd")
         self.user.save()
-        self.new_user = AppUser.object.get(email=self.user.email)
+        self.new_user = AppUser.objects.get(email=self.user.email)
         self.new_user.groups.add(self.consumer_group[0])
+        self.new_user.is_active = True
         self.new_user.save()
         self.client.login(email="test_rest5545@gmail.com", password="somepwd")
         self.car_1 = Car.objects.create(user=self.user,

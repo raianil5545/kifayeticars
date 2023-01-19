@@ -2,6 +2,7 @@ from importlib import import_module
 from io import BytesIO
 
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.http import HttpRequest, HttpResponseRedirect
 from django.test import Client, RequestFactory, TestCase
@@ -29,18 +30,21 @@ class TestCarsViews(TestCase):
         self.location = Location.objects.create(location="kathmandu", slug="kathmandu")
         self.make = Make.objects.create(brand="Honda", slug="honda")
         self.model = Model.objects.create(model="civic", slug="civic", make=self.make)
-        customer_user = dict(
-            first_name="test",
-            last_name="rest",
+        self.user = AppUser.objects.create_user(
+            first_name="staff",
+            last_name="one",
+            email="staff1@kifayeticar.com",
             password="Staff1@",
-            email="staff1@kifayeticar.com"
+            is_staff=True,
         )
+        self.user.is_active = True
+        staff_group = Group.objects.get_or_create(name="Staff")
+        self.user.groups.add(staff_group[0])
+        self.user.save()
         credentials = {
             'username': 'staff1@kifayeticar.com',
             'password': 'Staff1@'}
-        self.client.post(reverse('account:register'), data=customer_user)
-        self.client.post(reverse('account:login'), data=credentials)
-        self.user = AppUser.object.get(email="staff1@kifayeticar.com")
+        self.client.post(reverse('account:login'), credentials)
         self.car = Car.objects.create(user=self.user,
                                       price=100000,
                                       year_of_manufacture=2018,
@@ -197,16 +201,20 @@ class TestCarsViews(TestCase):
         self.assertIsInstance(response, HttpResponseRedirect)
 
     def test_render_403_car_delete(self):
-        customer_user = dict(
-            first_name="test",
-            last_name="rest",
+        self.user2 = AppUser.objects.create_user(
+            first_name="staff",
+            last_name="one",
+            email="staff2@kifayeticar.com",
             password="Staff2@",
-            email="staff2@kifayeticar.com"
+            is_staff=True,
         )
+        self.user2.is_active = True
+        staff_group = Group.objects.get_or_create(name="Staff")
+        self.user2.groups.add(staff_group[0])
+        self.user2.save()
         credentials = {
             'username': 'staff2@kifayeticar.com',
             'password': 'Staff2@'}
-        self.client.post(reverse('account:register'), data=customer_user)
         self.client.post(reverse('account:login'), data=credentials)
         response = self.client.get(reverse('cars:delete_car', args=[self.car.slug]))
         html = response.content.decode('utf-8')

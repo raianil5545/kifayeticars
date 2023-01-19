@@ -14,7 +14,7 @@ class TestUserAccount(TestCase):
 
     @pytest.mark.django_db
     def test_new_super_user(self):
-        super_user = self.db.object.create_superuser(
+        super_user = self.db.objects.create_superuser(
             "test_super@gmail.com", "first_name", "last_name", "pwd1234"
         )
         self.assertEqual(super_user.email, "test_super@gmail.com")
@@ -27,7 +27,7 @@ class TestUserAccount(TestCase):
 
     @pytest.mark.django_db
     def test_new_user(self):
-        user = self.db.object.create_user(
+        user = self.db.objects.create_user(
                                          first_name="first name",
                                          last_name="last name",
                                          email="some@gmail.com",
@@ -39,14 +39,14 @@ class TestUserAccount(TestCase):
         self.assertEqual(user.is_staff, False)
         self.assertFalse(user.is_superuser)
         with self.assertRaises(ValueError):
-            self.db.object.create_user(
+            self.db.objects.create_user(
                                       first_name="first name",
                                       last_name="last name",
                                       email="",
                                       password="PWD123453")
 
         with self.assertRaises(ValueError):
-            self.db.object.create_user(
+            self.db.objects.create_user(
                                        first_name="",
                                        last_name="last name",
                                        email="some@gmail.com",
