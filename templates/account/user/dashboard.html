@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}
+User | Dashboard
+{% endblock title %}
+{% block content %}
+<main class="pt-5">
+    <div class="conatiner" style="max-width: 1000px;">
+        <div class="col-12">
+            <h1 class="h2">{{user.first_name}} Dashboard</h1>
+        </div>
+        <div class="col-12 d-flex justify-content-between">
+            <div>Manage your <b>Apointments</b></div>
+        </div>
+    </div>
+</main>
+{% endblock content %}

@@ -85,7 +85,7 @@
         </div>
       </div>
       <div class="w-30 navblock2 d-flex justify-content-center">
-        {% if not request.session.user_email %}
+        {% if not user.is_authenticated %}
         <div>
           <a class="navbar-achor" href="{% url 'account:login' %}">LOGIN</a>
         </div>
@@ -106,21 +106,21 @@
         </div>
         {% else %}
         <div>
-            <a type="button" role="button" href="{% url 'sales_appointment:appointment_summary' %}"
-              class="btn btn-secondary">
-              {% with total_appointment=appointment|length %}
+          <a type="button" role="button" href="{% url 'sales_appointment:appointment_summary' %}"
+            class="btn btn-secondary">
+            {% with total_appointment=appointment|length %}
             <div id="appointment-numbers" class="d-inline-flex">
-              {% if total_appointment > 0 %}    
-                {{total_appointment}}
+              {% if total_appointment > 0 %}
+              {{total_appointment}}
               {% else %}
-                0
+              0
               {% endif %}
             </div>
             {% endwith %}
-              <svg class="svg-icon"
-                style="width: 2em; height: 2em;vertical-align: middle;fill: currentColor;overflow: hidden;"
-                viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                <path d="M810.666667 170.666667h-42.666667V106.666667a21.333333 21.333333 0 0 
+            <svg class="svg-icon"
+              style="width: 2em; height: 2em;vertical-align: middle;fill: currentColor;overflow: hidden;"
+              viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+              <path d="M810.666667 170.666667h-42.666667V106.666667a21.333333 21.333333 0 0 
         0-21.333333-21.333334h-42.666667a21.333333 21.333333 0 0 0-21.333333 
         21.333334V170.666667H341.333333V106.666667a21.333333 21.333333 0 0 
         0-21.333333-21.333334h-42.666667a21.333333 21.333333 0 0 0-21.333333 
@@ -131,19 +131,36 @@
         0l181.333333-180.906667a21.76 21.76 0 0 0 0-30.293333l-23.04-22.613334a21.76 21.76 0 0 0-30.293333 
         0l-143.36 143.36-52.48-52.906666a21.76 21.76 0 0 0-30.293334 0l-22.613333 21.76a21.333333 21.333333 
         0 0 0 0 29.866666z" /></svg>
-              Appointment
-            </a>
+            Appointment
+          </a>
         </div>
         <div class="dropdown">
-          {% load static %}
-          <a href="#"><img class="logo-img" src="{% static '/logo/favicon.ico' %}" alt="My image"></a>
-          <div class="dropdown-content">
-            <a type="button" role="button" href="#" class="btn btn-secondary mt-1">Sell Car</a>
+          <div>
+            <a type="button" role="button" href="{% url "account:dashboard" %}"
+                        class="btn btn-outline-secondary border-0 basket-btn">
+              <div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor"
+                  class="bi bi-person" viewBox="0 0 16 16">
+                  <path
+                    d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z" />
+                </svg>
+                </div>
+                <span class="fs15 fw500">Account</span>
+            </a>
           </div>
+          <div class="dropdown-content">
+            <a type="button" class="btn p-1 btn-outline-primary" href="{% url "account:profile" %}">PROFILE</a>
+            <a type="button" class="btn p-1 btn-outline-primary" href="{% url "account:edit-profile" pk=user.id %}">EDIT</a>
+          </div>
+        </div>
+        <div class="dropdown-content">
+          <a href="#">profile</a>
+          <a href="#">update</a>
+          <a href="#"></a>
         </div>
         {% endif %}
         <div>
-          <a class="navbar-achor" href="{% url 'account:logout' %}">LOGOUT</a>
+          <a href="{% url 'account:logout' %}">LOGOUT</a>
         </div>
         {% endif %}
       </div>

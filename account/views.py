@@ -1,14 +1,18 @@
+from typing import Any
+
 from django.contrib.auth import login
 from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
+from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from django.views.generic.edit import FormView
+from django.views.generic.edit import DeleteView, FormView, UpdateView
 
-from account.forms import RegisterForm, UserLoginForm
+from account.forms import RegisterForm, UserLoginForm, UserUpdateForm
 
 from .models import AppUser
 from .tokens import account_activation_token
@@ -82,6 +86,22 @@ def account_activate(request, uidb64, token):
         user.is_active = True
         user.save()
         login(request, user)
-        return redirect('account:login')
+        return redirect('account:dashboard')
     else:
         return render(request, 'account/registration/activation_invalid.html')
+
+
+class UserProfileUpdate(UpdateView):
+    template_name = 'account/user/updateprofile.html'
+    success_url = '/account/dashboard'
+    queryset = AppUser.objects.all()
+    form_class = UserUpdateForm
+
+
+class UserProfileDeleteView(DeleteView):
+    @method_decorator(login_required)
+    def post(self, request, *args: Any, **kwargs: Any):
+        user = AppUser.objects.get(email=request.user)
+        user.is_active = False
+        user.save()
+        return render(request, template_name="account/user/delete_confirm.html")
